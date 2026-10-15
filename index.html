@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lomba Cerdas Cermat Balteng 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; }
+        .hidden { display: none !important; }
+        /* Custom scrollbar for question grid */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .animate-in { animation: fadeIn 0.2s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800">
+
+    <!-- SCREEN: LOGIN -->
+    <div id="screen-login" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden border border-slate-200">
+            <div class="bg-blue-600 p-6 text-center text-white">
+                <i data-lucide="book-open" class="w-12 h-12 mx-auto mb-2 text-white"></i>
+                <h1 class="text-2xl font-bold">Lomba Cerdas Cermat Balteng 2026</h1>
+                <p class="text-blue-100 text-sm mt-1">Jenjang Sekolah Dasar</p>
+            </div>
+            <form id="login-form" class="p-6 space-y-5">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Nama Lengkap</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="user" class="h-5 w-5 text-slate-400"></i>
+                        </div>
+                        <input type="text" id="input-name" required class="pl-10 w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="Masukkan nama Anda">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Asal Sekolah</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="school" class="h-5 w-5 text-slate-400"></i>
+                        </div>
+                        <input type="text" id="input-school" required class="pl-10 w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="Contoh: SDN 011 Balikpapan Tengah">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Pilih Paket Ujian</label>
+                    <select id="input-package" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white font-medium">
+                        <!-- Options injected via JS -->
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 shadow-md">
+                    Masuk Lomba
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCREEN: DASHBOARD -->
+    <div id="screen-dashboard" class="hidden min-h-screen p-4 md:p-8">
+        <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="bg-blue-600 p-6 text-white flex justify-between items-center">
+                <h1 class="text-xl font-bold">Konfirmasi Data Peserta</h1>
+                <button onclick="switchScreen('login')" class="flex items-center text-blue-100 hover:text-white transition">
+                    <i data-lucide="log-out" class="w-4 h-4 mr-1"></i> Kembali
+                </button>
+            </div>
+            <div class="p-6 md:p-10">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm text-slate-500">Nama Peserta</p>
+                            <p id="dash-name" class="text-lg font-semibold text-slate-800"></p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-slate-500">Asal Sekolah</p>
+                            <p id="dash-school" class="text-lg font-semibold text-slate-800"></p>
+                        </div>
+                        <div class="pt-4 border-t border-slate-200">
+                            <p class="text-sm text-slate-500">Mata Ujian</p>
+                            <p id="dash-package" class="text-lg font-bold text-blue-700"></p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-slate-500">Jumlah Soal</p>
+                            <p id="dash-count" class="text-lg font-semibold text-slate-800"></p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-slate-500">Alokasi Waktu</p>
+                            <p id="dash-time" class="text-lg font-semibold text-slate-800"></p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-6 rounded-xl border border-blue-100">
+                        <h3 class="font-bold text-blue-800 mb-3 flex items-center">
+                            <i data-lucide="alert-circle" class="w-5 h-5 mr-2"></i> Petunjuk Pengerjaan
+                        </h3>
+                        <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
+                            <li>Berdoalah sebelum memulai ujian.</li>
+                            <li>Ujian ini memuat soal Pilihan Ganda & Pilihan Ganda Kompleks (jawaban lebih dari satu).</li>
+                            <li>Anda dapat melompat ke soal lain menggunakan panel navigasi nomor di kanan.</li>
+                            <li>Waktu terus berjalan setelah Anda menekan tombol mulai.</li>
+                        </ul>
+                        <button onclick="startTest()" class="mt-6 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 shadow-md">
+                            MULAI UJIAN
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN: TEST -->
+    <div id="screen-test" class="hidden min-h-screen flex flex-col font-sans">
+        <header class="bg-blue-700 text-white shadow-md z-10 sticky top-0">
+            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <i data-lucide="book-open" class="w-6 h-6 hidden sm:block text-white"></i>
+                    <div>
+                        <h1 id="test-header-title" class="font-bold text-lg leading-tight">Lomba Cerdas Cermat Balteng 2026</h1>
+                        <p id="test-header-subtitle" class="text-xs text-blue-200"></p>
+                    </div>
+                </div>
+                <div class="bg-blue-800 px-4 py-2 rounded-lg flex items-center border border-blue-600 shadow-inner">
+                    <i data-lucide="clock" id="timer-icon" class="w-5 h-5 mr-2 text-blue-200"></i>
+                    <span id="timer-text" class="font-mono text-xl font-bold tracking-wider text-white">00:00</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 container mx-auto p-4 flex flex-col lg:flex-row gap-6">
+            <div class="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
+                <div class="bg-slate-50 px-6 py-3 border-b border-slate-200 flex justify-between items-center">
+                    <span id="q-number" class="font-bold text-slate-700">Soal Nomor 1</span>
+                    <span id="q-badge" class="hidden text-xs font-bold text-white bg-orange-500 px-2 py-1 rounded">Jawaban Kompleks</span>
+                </div>
+                
+                <div class="p-6 md:p-8 flex-1 overflow-y-auto">
+                    <div id="q-text" class="text-lg text-slate-800 leading-relaxed whitespace-pre-wrap mb-8 text-justify">
+                        <!-- Question text here -->
+                    </div>
+                    
+                    <div id="q-options" class="space-y-3">
+                        <!-- Options generated here via JS -->
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 border-t border-slate-200 flex justify-between items-center">
+                    <button id="btn-prev" onclick="prevQuestion()" class="flex items-center px-4 py-2 bg-white border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition">
+                        <i data-lucide="chevron-left" class="w-5 h-5 mr-1"></i> SEBELUMNYA
+                    </button>
+                    
+                    <button id="btn-finish" onclick="showSubmitModal()" class="hidden items-center px-6 py-2 bg-green-600 border border-green-700 rounded-lg text-white font-bold hover:bg-green-700 shadow-md transition">
+                        <i data-lucide="check-circle" class="w-5 h-5 mr-2"></i> SELESAI
+                    </button>
+                    
+                    <button id="btn-next" onclick="nextQuestion()" class="flex items-center px-4 py-2 bg-blue-600 border border-blue-700 rounded-lg text-white hover:bg-blue-700 transition">
+                        SELANJUTNYA <i data-lucide="chevron-right" class="w-5 h-5 ml-1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="w-full lg:w-80 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col">
+                <div class="bg-slate-50 px-6 py-3 border-b border-slate-200">
+                    <h3 class="font-bold text-slate-700">Daftar Soal</h3>
+                </div>
+                <div id="q-grid" class="p-4 grid grid-cols-5 gap-2 overflow-y-auto max-h-[50vh] lg:max-h-none">
+                    <!-- Grid buttons generated via JS -->
+                </div>
+                <div class="p-4 border-t border-slate-200 mt-auto bg-slate-50 rounded-b-xl">
+                    <div class="flex items-center mb-2 text-sm text-slate-600">
+                        <div class="w-4 h-4 bg-green-500 border border-green-600 rounded mr-2"></div>
+                        <span id="stat-answered">Sudah Dijawab: 0</span>
+                    </div>
+                    <div class="flex items-center text-sm text-slate-600">
+                        <div class="w-4 h-4 bg-white border border-slate-300 rounded mr-2"></div>
+                        <span id="stat-unanswered">Belum Dijawab: 0</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- MODAL KONFIRMASI -->
+        <div id="modal-submit" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-in">
+                <div class="flex items-center justify-center w-16 h-16 bg-yellow-100 text-yellow-600 rounded-full mx-auto mb-4">
+                    <i data-lucide="alert-circle" class="w-8 h-8"></i>
+                </div>
+                <h2 class="text-xl font-bold text-center text-slate-800 mb-2">Konfirmasi Selesai</h2>
+                <p class="text-center text-slate-600 mb-6">
+                    Apakah Anda yakin ingin menyelesaikan ujian ini? <br/>
+                    Masih ada <span id="modal-unanswered" class="font-bold text-red-600">0</span> soal kosong.
+                </p>
+                <div class="flex space-x-3">
+                    <button onclick="hideSubmitModal()" class="flex-1 py-3 bg-slate-100 text-slate-700 font-medium rounded-lg hover:bg-slate-200 transition">
+                        Kembali Cek Soal
+                    </button>
+                    <button onclick="submitTest()" class="flex-1 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-md transition">
+                        Kumpulkan Ujian
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN: SUBMITTING -->
+    <div id="screen-submitting" class="hidden min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden border border-slate-200 p-8 text-center">
+            <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <h2 class="text-xl font-bold text-slate-800">Menyimpan Hasil...</h2>
+            <p class="text-slate-500 mt-2">Mohon tunggu sebentar, nilai sedang dikirim ke server.</p>
+        </div>
+    </div>
+
+    <!-- SCREEN: RESULT -->
+    <div id="screen-result" class="hidden min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden text-center relative border border-slate-200">
+            <div class="h-32 bg-gradient-to-r from-blue-600 to-indigo-600 absolute top-0 left-0 w-full"></div>
+            <div class="relative pt-16 px-6 pb-8">
+                <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-lg mx-auto mb-4 border-4 border-slate-50">
+                    <i data-lucide="check-circle" class="w-12 h-12 text-green-500"></i>
+                </div>
+                
+                <h1 class="text-3xl font-black text-slate-800 mb-1">Ujian Selesai!</h1>
+                <p class="text-slate-500 mb-8">Terima kasih telah mengikuti Lomba Cerdas Cermat Balteng 2026.</p>
+
+                <div class="bg-slate-50 rounded-xl p-5 border border-slate-100 mb-8 text-left">
+                    <table class="w-full text-sm">
+                        <tbody>
+                            <tr class="border-b border-slate-200">
+                                <td class="py-2 text-slate-500">Nama Lengkap</td>
+                                <td id="res-name" class="py-2 font-semibold text-slate-800 text-right"></td>
+                            </tr>
+                            <tr class="border-b border-slate-200">
+                                <td class="py-2 text-slate-500">Asal Sekolah</td>
+                                <td id="res-school" class="py-2 font-semibold text-slate-800 text-right"></td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 text-slate-500">Mata Ujian</td>
+                                <td id="res-package" class="py-2 font-semibold text-blue-700 text-right"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="flex justify-center items-center gap-6 mb-8">
+                    <div class="text-center">
+                        <p class="text-sm text-slate-500 uppercase tracking-wider mb-1">Benar</p>
+                        <p id="res-correct" class="text-3xl font-bold text-green-500">0</p>
+                    </div>
+                    <div class="w-px h-12 bg-slate-200"></div>
+                    <div class="text-center">
+                        <p class="text-sm text-slate-500 uppercase tracking-wider mb-1">Salah/Kosong</p>
+                        <p id="res-wrong" class="text-3xl font-bold text-red-500">0</p>
+                    </div>
+                    <div class="w-px h-12 bg-slate-200"></div>
+                    <div class="text-center">
+                        <p class="text-sm text-slate-500 uppercase tracking-wider mb-1">Nilai</p>
+                        <p id="res-score" class="text-4xl font-black text-blue-600">0</p>
+                    </div>
+                </div>
+
+                <button onclick="resetApp()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-lg transition duration-200">
+                    Kembali ke Halaman Awal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATABASE SOAL LENGKAP (30 SOAL SESUAI DOKUMEN) ---
+        const soalPackages = {
+          lcc_1: {
+            title: "Bahasa Indonesia Kelas 5 (TKA)",
+            duration: 120,
+            questions: [
+              {
+                text: "Dina dan kakaknya sedang menyusuri jalan setapak di tengah hutan Kalimantan. Pohon-pohon raksasa menjulang tinggi, menutupi sinar matahari sehingga suasana terasa remang-remang. Suara burung rangkong sesekali memecah kesunyian rimba tersebut. Di sana, mereka menemukan berbagai jenis tanaman langka yang hanya tumbuh di ekosistem asli ini. Perjalanan itu sangat berkesan bagi Dina karena ia baru pertama kali melihat hutan yang begitu asri dan alami.\n\nMakna kata 'rimba' pada teks tersebut adalah ....",
+                options: [
+                  "Hutan yang luas dan lebat",
+                  "Kebun di belakang rumah",
+                  "Taman kota yang asri",
+                  "Padang rumput yang gersang"
+                ],
+                answer: 0
+              },
+              {
+                text: "Panel surya adalah perangkat yang mengubah cahaya matahari menjadi energi listrik. Penggunaan panel surya kini mulai digemari karena ramah lingkungan. Selain mengurangi tagihan listrik bulanan, panel surya tidak menghasilkan polusi udara seperti pembangkit listrik berbahan bakar fosil. Di Indonesia, potensi energi surya sangat besar karena matahari bersinar sepanjang tahun.\n\nBerdasarkan teks tersebut, salah satu keunggulan panel surya dibandingkan pembangkit listrik bahan bakar fosil adalah ....",
+                options: [
+                  "Membutuhkan biaya perawatan yang mahal",
+                  "Tidak menghasilkan polusi udara",
+                  "Hanya bisa digunakan saat malam hari",
+                  "Menghasilkan limbah cair yang berbahaya"
+                ],
+                answer: 1
+              },
+              {
+                text: "Setiap pagi, Budi selalu bangun tepat waktu pada pukul 05.00 WIB. Setelah bangun, ia tidak lupa merapikan tempat tidurnya dan membantu ibu menyiapkan sarapan. Kebiasaan disiplin ini sudah ia lakukan sejak duduk di kelas satu sekolah dasar. Budi percaya bahwa memulai hari dengan aktivitas positif akan membuatnya lebih bersemangat dalam belajar di sekolah.\n\nIde pokok dari paragraf tersebut adalah ....",
+                options: [
+                  "Jadwal belajar Budi di sekolah",
+                  "Cara Budi merapikan tempat tidur",
+                  "Kebiasaan disiplin pagi hari Budi",
+                  "Menu sarapan yang disiapkan Budi"
+                ],
+                answer: 2
+              },
+              {
+                text: "Andi tidak sengaja menjatuhkan botol minum milik Bayu hingga pecah. Meskipun takut, Andi segera menemui Bayu dan mengakui kesalahannya. Ia juga menawarkan untuk mengganti botol tersebut dengan uang tabungannya. Bayu yang melihat kejujuran Andi akhirnya memaafkannya dan mengatakan bahwa tidak perlu diganti karena ia juga punya botol cadangan di rumah.\n\nAlasan tindakan Andi dianggap sesuai dengan nilai kejujuran adalah ....",
+                options: [
+                  "Ia menyembunyikan pecahan botol agar tidak dimarahi",
+                  "Ia segera mengakui kesalahan meskipun merasa takut",
+                  "Ia meminta maaf hanya karena dipaksa oleh guru",
+                  "Ia mengganti botol Bayu dengan botol milik orang lain"
+                ],
+                answer: 1
+              },
+              {
+                text: "Saat namanya dipanggil sebagai pemenang lomba menulis puisi tingkat nasional, jantung Lani berdegup kencang. Ia hampir tidak percaya. Air mata perlahan jatuh di pipinya saat ia melangkah menuju panggung. Perjuangan berlatih selama tiga bulan terakhir terbayar lunas dengan piala emas yang kini ada di genggamannya.\n\nPerasaan yang dialami Lani berdasarkan teks tersebut adalah ....",
+                options: [
+                  "Sedih karena lelah berlatih",
+                  "Kecewa karena tidak juara satu",
+                  "Terharu dan sangat bahagia",
+                  "Cemas menghadapi lomba berikutnya"
+                ],
+                answer: 2
+              },
+              {
+                text: "Angklung adalah alat musik tradisional Indonesia yang berasal dari Jawa Barat. Alat musik ini terbuat dari pipa-pipa bambu yang dipotong sedemikian rupa sehingga menghasilkan nada yang berbeda saat digoyangkan. Angklung telah diakui oleh UNESCO sebagai Warisan Budaya Takbenda Manusia sejak tahun 2010. Cara memainkannya cukup unik karena satu orang biasanya memegang satu atau dua nada saja.\n\nObjek utama yang dibahas dalam teks tersebut adalah ....",
+                options: [
+                  "Sejarah bambu di Jawa Barat",
+                  "Cara pembuatan kerajinan tangan",
+                  "Alat musik tradisional angklung",
+                  "Daftar warisan budaya dunia"
+                ],
+                answer: 2
+              },
+              {
+                text: "Kebiasaan membuang sampah plastik ke sungai masih sering dilakukan oleh sebagian warga. Hal ini menyebabkan aliran air tersumbat, terutama saat musim hujan tiba. Akibatnya, air sungai meluap ke permukiman warga dan menyebabkan banjir. Selain itu, sampah plastik juga merusak ekosistem sungai karena tidak dapat terurai dalam waktu singkat.\n\nPenyebab utama terjadinya banjir di permukiman berdasarkan teks tersebut adalah ....",
+                options: [
+                  "Meningkatnya populasi ikan di sungai",
+                  "Sumbatan aliran air akibat sampah plastik",
+                  "Pembangunan jembatan yang terlalu rendah",
+                  "Musim kemarau yang berkepanjangan"
+                ],
+                answer: 1
+              },
+              {
+                text: "\"Kek, kenapa Kakek menanam pohon mangga ini? Kan buahnya baru bisa dinikmati bertahun-tahun lagi,\" tanya Adi. Kakek tersenyum lalu menjawab, \"Adi, Kakek menanam ini bukan hanya untuk Kakek. Kelak, kamu dan anak cucumu yang akan menikmati buah dan keteduhannya. Kita harus selalu berpikir untuk masa depan orang lain, bukan hanya diri sendiri.\"\n\nPesan moral atau amanat yang dapat dipetik dari ucapan Kakek adalah ....",
+                options: [
+                  "Kita tidak perlu menanam pohon jika tidak suka buahnya",
+                  "Berbuat baiklah untuk kepentingan generasi mendatang",
+                  "Menanam pohon adalah pekerjaan yang sangat melelahkan",
+                  "Kita hanya boleh melakukan hal yang menguntungkan diri sendiri"
+                ],
+                answer: 1
+              },
+              {
+                text: "[Ide Visual/Gambar]: Seorang arkeolog sedang membersihkan benda kuno dari tanah menggunakan kuas.\n\nPara arkeolog baru saja menemukan berbagai artefak di situs penggalian candi kuno. Benda-benda tersebut berupa pecahan gerabah, koin emas, dan alat-alat pertukangan dari batu. Melalui benda tersebut, para ahli dapat mempelajari cara hidup masyarakat pada zaman dahulu. Penemuan ini sangat berharga bagi ilmu pengetahuan sejarah Indonesia.\n\nIstilah 'artefak' pada teks di atas merujuk pada ....",
+                options: [
+                  "Benda arkeologi atau peninggalan bersejarah",
+                  "Tulisan kuno yang terdapat pada dinding gua",
+                  "Lokasi tempat ditemukannya fosil hewan",
+                  "Cara para ahli melakukan penggalian tanah"
+                ],
+                answer: 0
+              },
+              {
+                text: "Burung Cendrawasih dikenal sebagai 'Burung dari Surga' karena keindahan bulunya. Spesies yang paling terkenal adalah Cendrawasih Kuning Besar. Burung jantan memiliki bulu hiasan yang panjang dan berwarna kuning cerah di bagian samping tubuhnya. Bulu ini digunakan untuk menarik perhatian burung betina saat musim kawin. Habitat asli mereka berada di hutan dataran rendah Papua.\n\nBerdasarkan teks tersebut, kegunaan bulu kuning panjang pada burung Cendrawasih jantan adalah ....",
+                options: [
+                  "Melindungi diri dari serangan musuh",
+                  "Menarik perhatian burung betina",
+                  "Membantu terbang lebih cepat",
+                  "Menjaga suhu tubuh di hutan dingin"
+                ],
+                answer: 1
+              },
+              {
+                text: "Penggunaan buku elektronik (e-book) semakin populer di kalangan pelajar. E-book dianggap lebih praktis karena dapat disimpan dalam perangkat ponsel atau tablet. Selain itu, penggunaan e-book juga mendukung gerakan pelestarian lingkungan karena mengurangi penggunaan kertas yang berbahan dasar kayu. Namun, pelajar tetap diingatkan untuk membatasi waktu layar agar kesehatan mata tetap terjaga.\n\nKesimpulan yang tepat untuk teks di atas adalah ....",
+                options: [
+                  "E-book akan segera menggantikan fungsi guru di sekolah",
+                  "E-book memiliki manfaat praktis dan lingkungan namun perlu batasan penggunaan",
+                  "Semua buku kertas harus segera dimusnahkan karena tidak praktis",
+                  "Pelajar tidak boleh menggunakan e-book karena merusak mata"
+                ],
+                answer: 1
+              },
+              {
+                text: "Festival Budaya Nusantara kembali digelar pada hari Minggu besok. Acara tahunan ini akan dipusatkan di Lapangan Merdeka, Medan. Peserta dari berbagai provinsi akan menampilkan tarian dan pakaian adat masing-masing. Pemerintah kota berharap acara ini dapat menarik minat wisatawan mancanegara untuk berkunjung ke Sumatra Utara.\n\nLokasi pelaksanaan Festival Budaya Nusantara tersebut adalah ....",
+                options: [
+                  "Istana Maimun",
+                  "Kantor Gubernur Sumatra Utara",
+                  "Lapangan Merdeka, Medan",
+                  "Bandara Internasional Kualanamu"
+                ],
+                answer: 2
+              },
+              {
+                text: "Cara menanam cabai di pot:\n1. Siapkan benih cabai berkualitas.\n2. Masukkan media tanam berupa campuran tanah dan pupuk ke dalam pot.\n3. Buat lubang kecil di tengah media tanam.\n4. Masukkan benih ke dalam lubang lalu tutup tipis dengan tanah.\n5. ....\n6. Letakkan pot di tempat yang terkena sinar matahari cukup.\n\nLangkah yang paling tepat untuk mengisi bagian rumpang (nomor 5) pada prosedur tersebut adalah ....",
+                options: [
+                  "Panen cabai saat warnanya sudah merah",
+                  "Siram benih dengan sedikit air secara perlahan",
+                  "Cabut benih yang baru tumbuh agar tidak penuh",
+                  "Beri pestisida kimia dalam jumlah banyak"
+                ],
+                answer: 1
+              },
+              {
+                text: "Riko melihat Dani duduk sendirian di pojok kantin tanpa membawa bekal. Riko pun mendekat dan membagi separuh roti serta susunya untuk Dani. \"Makanlah, Dani. Aku punya banyak, kok,\" kata Riko sambil tersenyum. Padahal, Riko sebenarnya sengaja menghemat uang jajannya untuk bisa membeli roti yang lebih besar agar bisa berbagi.\n\nWatak tokoh Riko dalam cerita tersebut adalah ....",
+                options: [
+                  "Sombong dan pamer",
+                  "Hemat dan pelit",
+                  "Peduli dan murah hati",
+                  "Pemalu dan pendiam"
+                ],
+                answer: 2
+              },
+              {
+                text: "Hasil pengamatan pertumbuhan kacang hijau selama 5 hari menunjukkan hasil yang beragam. Gelas A diletakkan di tempat terang, batangnya tumbuh kuat dengan daun berwarna hijau segar. Gelas B diletakkan di tempat gelap, batangnya tumbuh sangat tinggi namun lemah (pucat). Hal ini membuktikan bahwa cahaya matahari sangat memengaruhi kesehatan tanaman kacang hijau.\n\nPernyataan yang tidak sesuai dengan hasil laporan tersebut adalah ....",
+                options: [
+                  "Cahaya matahari menghambat pertumbuhan tinggi batang",
+                  "Tanaman di tempat gelap memiliki daun yang sangat hijau",
+                  "Gelas A menghasilkan tanaman yang lebih kuat dibanding Gelas B",
+                  "Pertumbuhan tanaman dipengaruhi oleh lokasi peletakannya"
+                ],
+                answer: 1
+              },
+              {
+                text: "Pastikan kabel daya terhubung ke stopkontak. Tekan tombol 'Power' pada unit CPU dan juga pada monitor. Tunggu beberapa saat hingga proses 'booting' selesai dan layar utama muncul. Klik menu 'Start' di pojok kiri bawah untuk mulai menjalankan program yang diinginkan.\n\nTujuan utama penulisan teks tersebut adalah ....",
+                options: [
+                  "Menjelaskan cara mematikan komputer",
+                  "Memberikan instruksi cara menyalakan komputer",
+                  "Menginformasikan harga sebuah komputer baru",
+                  "Mendeskripsikan bagian-bagian dalam CPU"
+                ],
+                answer: 1
+              },
+              {
+                text: "Mencuci tangan dengan sabun adalah cara paling sederhana untuk mencegah penyakit menular. Sabun dapat meluruhkan kuman dan virus yang menempel pada permukaan kulit tangan setelah kita beraktivitas. Jika tangan kotor menyentuh area wajah seperti mulut atau mata, kuman dapat masuk ke dalam tubuh dan menyebabkan sakit perut hingga flu.\n\nJika seseorang sering menyentuh wajah dengan tangan yang jarang dicuci, kemungkinan yang akan terjadi adalah ....",
+                options: [
+                  "Wajah akan terlihat lebih bersih dan segar",
+                  "Kuman akan mati dengan sendirinya di wajah",
+                  "Risiko terserang penyakit menular meningkat",
+                  "Suhu tubuh akan menurun secara drastis"
+                ],
+                answer: 2
+              },
+              {
+                text: "Langit tiba-tiba berubah menjadi kelabu gelap. Kilat menyambar bersahut-sahutan diikuti suara guntur yang menggelegar. Kelinci Kecil segera berlari mencari perlindungan. Ia gemetar ketakutan di balik akar pohon besar, berharap hujan badai ini segera berakhir.\n\nLatar suasana yang tergambar dalam kutipan cerita tersebut adalah ....",
+                options: [
+                  "Menyenangkan dan ceria",
+                  "Mencekam dan menakutkan",
+                  "Tenang dan damai",
+                  "Sedih dan mengharukan"
+                ],
+                answer: 1
+              },
+              {
+                text: "Gunakan listrik seperlunya! Matikan lampu, kipas angin, dan televisi jika sudah tidak digunakan. Dengan menghemat energi, kita tidak hanya mengurangi biaya pengeluaran, tetapi juga ikut menjaga bumi dari pemanasan global. Mari mulai dari diri sendiri, mulai dari sekarang!\n\nPesan utama yang ingin disampaikan oleh iklan tersebut adalah ....",
+                options: [
+                  "Cara memperbaiki alat elektronik yang rusak",
+                  "Ajakan untuk membeli perangkat hemat listrik",
+                  "Pentingnya melakukan penghematan energi listrik",
+                  "Larangan menggunakan televisi di siang hari"
+                ],
+                answer: 2
+              },
+              {
+                text: "Ki Hajar Dewantara lahir dari keluarga bangsawan, namun ia sangat peduli pada rakyat kecil. Beliau mendirikan Taman Siswa untuk memberikan kesempatan pendidikan bagi pribumi yang saat itu sulit bersekolah. Meskipun sering mendapat tantangan dan diasingkan oleh penjajah, beliau tetap teguh memperjuangkan kecerdasan bangsa Indonesia.\n\nSifat teladan yang dapat dicontoh dari sosok Ki Hajar Dewantara adalah ....",
+                options: [
+                  "Hanya mau berteman dengan kaum bangsawan",
+                  "Pantang menyerah dalam memperjuangkan pendidikan",
+                  "Selalu menghindari konflik dengan penjajah",
+                  "Mencari keuntungan pribadi melalui sekolah"
+                ],
+                answer: 1
+              },
+              {
+                text: "Hasan dan Husin adalah saudara kembar. Wajah mereka sangat identik sehingga teman-teman sekelas sering kesulitan membedakan keduanya. Tidak hanya wajah, suara dan gaya bicara mereka pun sangat mirip. Namun, jika diperhatikan lebih dekat, Hasan memiliki tahi lalat kecil di dagunya.\n\nSinonim dari kata 'identik' dalam teks tersebut adalah ....",
+                options: [
+                  "Sangat berbeda",
+                  "Sama persis",
+                  "Mirip sedikit",
+                  "Berlawanan"
+                ],
+                answer: 1
+              },
+              {
+                text: "Olahraga sepak bola menuntut kerjasama tim yang solid. Selain melatih kekuatan otot kaki dan koordinasi tubuh, olahraga ini juga melatih mental disiplin para pemainnya. Dengan berlatih rutin, stamina tubuh akan meningkat dan jantung menjadi lebih sehat. Sepak bola juga menjadi sarana yang baik untuk mempererat persahabatan antarpertemanan.\n\nManfaat fisik bagi jantung yang didapat dari olahraga sepak bola menurut teks adalah ....",
+                options: [
+                  "Membuat detak jantung menjadi tidak teratur",
+                  "Menjaga agar jantung menjadi lebih sehat",
+                  "Memperkecil ukuran otot jantung",
+                  "Meningkatkan beban kerja jantung secara berlebih"
+                ],
+                answer: 1
+              },
+              {
+                text: "Di tengah perjalanan pulang, Tono menemukan sebuah dompet tebal yang terjatuh di trotoar. Saat membukanya, ia melihat banyak uang dan kartu identitas pemiliknya. Ada rasa bimbang di hati Tono. Uang itu bisa ia gunakan untuk membeli sepeda impiannya, namun bayangan wajah sedih pemilik dompet itu terus muncul di benaknya. Akhirnya, dengan langkah mantap, Tono menuju kantor polisi terdekat.\n\nAlasan munculnya perasaan 'bimbang' di hati Tono adalah ....",
+                options: [
+                  "Tono lupa jalan menuju ke kantor polisi",
+                  "Pertentangan antara keinginan pribadi dan nilai kejujuran",
+                  "Takut dituduh mencuri oleh orang yang melihatnya",
+                  "Dompet tersebut ternyata kosong dan tidak ada uangnya"
+                ],
+                answer: 1
+              },
+              {
+                text: "Gerhana matahari terjadi ketika posisi bulan terletak di antara bumi dan matahari. Hal ini menyebabkan cahaya matahari tertutup sebagian atau seluruhnya. Fenomena ini sangat indah untuk disaksikan, menurut saya ini adalah kejadian paling menakjubkan di alam semesta. Namun, kita tidak boleh melihat matahari secara langsung tanpa alat pelindung karena dapat merusak mata.\n\nPernyataan yang merupakan fakta berdasarkan teks di atas adalah ....",
+                options: [
+                  "Gerhana matahari adalah kejadian paling menakjubkan di dunia",
+                  "Posisi bulan berada di antara bumi dan matahari saat gerhana",
+                  "Menonton gerhana matahari lebih baik dilakukan bersama teman",
+                  "Semua orang pasti merasa takut saat matahari tertutup"
+                ],
+                answer: 1
+              },
+              {
+                text: "Meskipun pasar modern kini menjamur di kota-kota besar, keberadaan pasar tradisional tetap bertahan. Pasar tradisional memiliki ciri khas berupa interaksi langsung antara penjual dan pembeli melalui proses tawar-menawar. Bagi sebagian orang, suasana ini lebih menyenangkan dibanding berbelanja di swalayan yang serba otomatis.\n\nAntonim atau lawan kata dari 'tradisional' pada teks tersebut adalah ....",
+                options: [
+                  "Kuno",
+                  "Modern",
+                  "Sederhana",
+                  "Lama"
+                ],
+                answer: 1
+              },
+              {
+                type: "multiple",
+                text: "Siswa kelas 5 SD Nusantara mengadakan kegiatan menanam pohon bakau di pantai. Pohon bakau memiliki akar yang kuat untuk mencegah abrasi atau pengikisan pantai oleh gelombang laut. Selain itu, hutan bakau menjadi tempat tinggal bagi ikan-ikan kecil dan kepiting. Kegiatan ini bertujuan untuk menumbuhkan rasa cinta lingkungan sejak dini bagi para siswa.\n\nPernyataan yang sesuai dengan manfaat pohon bakau berdasarkan teks tersebut adalah ....",
+                options: [
+                  "Akar bakau berfungsi mencegah pengikisan pantai oleh air laut",
+                  "Hutan bakau merupakan habitat bagi berbagai hewan laut kecil",
+                  "Pohon bakau dapat mempercepat terjadinya gelombang tsunami",
+                  "Menanam bakau hanya bisa dilakukan oleh nelayan dewasa saja"
+                ],
+                answer: [0, 1]
+              },
+              {
+                type: "multiple",
+                text: "Rina melihat seorang nenek kesulitan menyeberang jalan karena kendaraan sangat padat. Tanpa diminta, Rina segera menghampiri nenek tersebut dan meminta kendaraan berhenti sejenak untuk memberi jalan. Setelah sampai di seberang, nenek itu mengucapkan terima kasih sambil tersenyum haru. Rina merasa senang bisa membantu meskipun ia harus sedikit terlambat sampai di toko buku.\n\nBerdasarkan teks tersebut, pernyataan yang menggambarkan karakter Rina adalah ....",
+                options: [
+                  "Rina memiliki empati yang tinggi terhadap kesulitan orang lain",
+                  "Rina adalah anak yang egois karena mementingkan toko buku",
+                  "Rina berani mengambil tindakan untuk menolong sesama",
+                  "Rina membantu nenek karena mengharapkan imbalan uang"
+                ],
+                answer: [0, 2]
+              },
+              {
+                type: "multiple",
+                text: "Siswa SD Cerdas menciptakan alat penyaring air kotor sederhana. Alat ini menggunakan bahan alami seperti pasir, kerikil, arang, dan ijuk. Dalam uji coba, air keruh yang dimasukkan ke dalam alat berubah menjadi jernih. Inovasi ini memenangkan juara pertama dalam lomba teknologi tepat guna tingkat kabupaten bulan lalu.\n\nPernyataan yang merupakan fakta dari berita inovasi tersebut adalah ....",
+                options: [
+                  "Bahan yang digunakan antara lain pasir, kerikil, dan arang",
+                  "Alat ini memenangkan juara pertama lomba tingkat kabupaten",
+                  "Penyaring air ini adalah alat terbaik yang pernah dibuat manusia",
+                  "Semua sekolah di Indonesia wajib membuat alat penyaring ini"
+                ],
+                answer: [0, 1]
+              },
+              {
+                type: "multiple",
+                text: "Desa Wisata Hijau menawarkan keindahan sawah terasering yang tertata rapi. Udara di desa ini sangat sejuk karena berada di lereng pegunungan. Pengunjung dapat belajar menanam padi atau sekadar berjalan kaki menyusuri pematang sawah. Keramahan penduduk lokal membuat wisatawan betah berlama-lama di sana.\n\nFaktor-faktor yang membuat Desa Wisata Hijau menarik bagi pengunjung adalah ....",
+                options: [
+                  "Pemandangan alam sawah terasering yang indah",
+                  "Tersedianya fasilitas permainan modern yang canggih",
+                  "Sikap penduduk desa yang ramah terhadap tamu",
+                  "Suhu udara yang panas sehingga cocok untuk berjemur"
+                ],
+                answer: [0, 2]
+              },
+              {
+                type: "multiple",
+                text: "Menjaga daya tahan tubuh sangat penting agar kita tidak mudah sakit. Hal ini dapat dilakukan dengan mengonsumsi makanan bergizi seimbang, terutama buah dan sayur yang kaya vitamin. Selain itu, tidur yang cukup selama 8 jam sehari membantu tubuh melakukan pemulihan. Olahraga teratur juga meningkatkan kebugaran dan memperlancar aliran darah.\n\nBerdasarkan teks, upaya yang dapat dilakukan untuk menjaga daya tahan tubuh adalah ....",
+                options: [
+                  "Memperbanyak makan buah dan sayur bergizi",
+                  "Begadang setiap malam untuk mengerjakan tugas",
+                  "Melakukan aktivitas olahraga secara rutin",
+                  "Menghindari minum air putih di siang hari"
+                ],
+                answer: [0, 2]
+              }
+            ]
+          }
+        };
+
+        // --- STATE VARIABLES ---
+        let currentScreen = 'login';
+        let userData = { name: '', school: '', packageKey: 'lcc_1' };
+        let answers = {};
+        let currentQIndex = 0;
+        let timeLeft = 0;
+        let timerInterval;
+
+        // --- DOM ELEMENTS ---
+        const screens = {
+            login: document.getElementById('screen-login'),
+            dashboard: document.getElementById('screen-dashboard'),
+            test: document.getElementById('screen-test'),
+            submitting: document.getElementById('screen-submitting'),
+            result: document.getElementById('screen-result')
+        };
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            // Populate select options
+            const select = document.getElementById('input-package');
+            for (const [key, pkg] of Object.entries(soalPackages)) {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = pkg.title;
+                select.appendChild(option);
+            }
+
+            // Bind Form Submit
+            document.getElementById('login-form').addEventListener('submit', handleLogin);
+            
+            // Render Icons
+            lucide.createIcons();
+        });
+
+        // --- CORE FUNCTIONS ---
+        function switchScreen(newScreen) {
+            Object.values(screens).forEach(s => s.classList.add('hidden'));
+            screens[newScreen].classList.remove('hidden');
+            currentScreen = newScreen;
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            userData.name = document.getElementById('input-name').value;
+            userData.school = document.getElementById('input-school').value;
+            userData.packageKey = document.getElementById('input-package').value;
+
+            // Prepare Dashboard
+            const pkg = soalPackages[userData.packageKey];
+            document.getElementById('dash-name').textContent = userData.name;
+            document.getElementById('dash-school').textContent = userData.school;
+            document.getElementById('dash-package').textContent = pkg.title;
+            document.getElementById('dash-count').textContent = pkg.questions.length + " Butir Soal";
+            document.getElementById('dash-time').textContent = pkg.duration + " Menit";
+
+            switchScreen('dashboard');
+        }
+
+        function startTest() {
+            const pkg = soalPackages[userData.packageKey];
+            timeLeft = pkg.duration * 60;
+            answers = {};
+            currentQIndex = 0;
+            
+            document.getElementById('test-header-subtitle').textContent = `${userData.name} | ${userData.school}`;
+            
+            switchScreen('test');
+            renderQuestion();
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timeLeft = 0;
+                    updateTimerDisplay();
+                    submitTest();
+                } else {
+                    updateTimerDisplay();
+                }
+            }, 1000);
+        }
+
+        function formatTime(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = seconds % 60;
+            const mStr = m.toString().padStart(2, '0');
+            const sStr = s.toString().padStart(2, '0');
+            if (h > 0) {
+                return `${h.toString().padStart(2, '0')}:${mStr}:${sStr}`;
+            }
+            return `${mStr}:${sStr}`;
+        }
+
+        function updateTimerDisplay() {
+            const el = document.getElementById('timer-text');
+            const icon = document.getElementById('timer-icon');
+            el.textContent = formatTime(timeLeft);
+            if (timeLeft < 300) {
+                el.classList.add('text-red-400');
+                el.classList.remove('text-white');
+                icon.classList.add('text-red-400', 'animate-pulse');
+                icon.classList.remove('text-blue-200');
+            } else {
+                el.classList.remove('text-red-400');
+                el.classList.add('text-white');
+                icon.classList.remove('text-red-400', 'animate-pulse');
+                icon.classList.add('text-blue-200');
+            }
+        }
+
+        function renderQuestion() {
+            const pkg = soalPackages[userData.packageKey];
+            const q = pkg.questions[currentQIndex];
+            const isMultiple = q.type === 'multiple';
+
+            document.getElementById('q-number').textContent = `Soal Nomor ${currentQIndex + 1}`;
+            
+            const badge = document.getElementById('q-badge');
+            if(isMultiple) badge.classList.remove('hidden'); else badge.classList.add('hidden');
+
+            document.getElementById('q-text').textContent = q.text;
+
+            const optionsContainer = document.getElementById('q-options');
+            optionsContainer.innerHTML = ''; // clear
+
+            q.options.forEach((opt, idx) => {
+                // Check if selected
+                let isChecked = false;
+                if(isMultiple) {
+                    isChecked = (answers[currentQIndex] || []).includes(idx);
+                } else {
+                    isChecked = answers[currentQIndex] === idx;
+                }
+
+                const label = document.createElement('label');
+                label.className = `flex items-start p-4 border rounded-xl cursor-pointer transition-all duration-200 ${isChecked ? 'border-blue-500 bg-blue-50 shadow-sm' : 'border-slate-200 hover:bg-slate-50 hover:border-slate-300'}`;
+                
+                const inputType = isMultiple ? 'checkbox' : 'radio';
+                const roundedClass = isMultiple ? 'rounded' : 'rounded-full';
+                const checkedAttr = isChecked ? 'checked' : '';
+
+                label.innerHTML = `
+                    <div class="flex items-center h-5">
+                        <input type="${inputType}" name="question-${currentQIndex}" class="w-5 h-5 text-blue-600 focus:ring-blue-500 border-slate-300 ${roundedClass}" ${checkedAttr} onchange="handleAnswerChange(${currentQIndex}, ${idx}, ${isMultiple})">
+                    </div>
+                    <div class="ml-3">
+                        <span class="font-bold text-slate-700 mr-2 uppercase">${String.fromCharCode(65 + idx)}.</span>
+                        <span class="text-slate-700 leading-relaxed">${opt}</span>
+                    </div>
+                `;
+                optionsContainer.appendChild(label);
+            });
+
+            // Update footer buttons
+            document.getElementById('btn-prev').disabled = currentQIndex === 0;
+            
+            if (currentQIndex === pkg.questions.length - 1) {
+                document.getElementById('btn-next').classList.add('hidden');
+                document.getElementById('btn-finish').classList.replace('hidden', 'flex');
+            } else {
+                document.getElementById('btn-next').classList.replace('hidden', 'flex');
+                document.getElementById('btn-finish').classList.add('hidden');
+            }
+
+            renderGrid();
+        }
+
+        // Must be global for onclick
+        window.handleAnswerChange = function(qIndex, optionIndex, isMultiple) {
+            if (isMultiple) {
+                let currentArr = answers[qIndex] || [];
+                if (currentArr.includes(optionIndex)) {
+                    currentArr = currentArr.filter(i => i !== optionIndex);
+                } else {
+                    currentArr.push(optionIndex);
+                }
+                answers[qIndex] = currentArr;
+            } else {
+                answers[qIndex] = optionIndex;
+            }
+            renderQuestion();
+        }
+
+        window.prevQuestion = function() {
+            if (currentQIndex > 0) {
+                currentQIndex--;
+                renderQuestion();
+            }
+        }
+
+        window.nextQuestion = function() {
+            const pkg = soalPackages[userData.packageKey];
+            if (currentQIndex < pkg.questions.length - 1) {
+                currentQIndex++;
+                renderQuestion();
+            }
+        }
+
+        window.jumpToQuestion = function(idx) {
+            currentQIndex = idx;
+            renderQuestion();
+        }
+
+        function renderGrid() {
+            const pkg = soalPackages[userData.packageKey];
+            const gridContainer = document.getElementById('q-grid');
+            gridContainer.innerHTML = '';
+
+            let answeredCount = 0;
+
+            pkg.questions.forEach((q, idx) => {
+                const hasAnswer = Array.isArray(answers[idx]) 
+                  ? answers[idx].length > 0 
+                  : answers[idx] !== undefined;
+
+                if (hasAnswer) answeredCount++;
+
+                let statusClass = "bg-white border-slate-300 text-slate-700 hover:bg-slate-100";
+                if (hasAnswer) statusClass = "bg-green-500 border-green-600 text-white shadow-sm";
+                if (idx === currentQIndex) statusClass = "bg-blue-600 border-blue-700 text-white shadow-md ring-2 ring-blue-300";
+
+                const btn = document.createElement('button');
+                btn.className = `h-10 w-full rounded font-medium border flex items-center justify-center transition-all ${statusClass}`;
+                btn.textContent = idx + 1;
+                btn.onclick = () => jumpToQuestion(idx);
+                gridContainer.appendChild(btn);
+            });
+
+            document.getElementById('stat-answered').textContent = `Sudah Dijawab: ${answeredCount}`;
+            document.getElementById('stat-unanswered').textContent = `Belum Dijawab: ${pkg.questions.length - answeredCount}`;
+            
+            // Store for modal use
+            window.unansweredFinalCount = pkg.questions.length - answeredCount;
+        }
+
+        window.showSubmitModal = function() {
+            document.getElementById('modal-unanswered').textContent = window.unansweredFinalCount;
+            document.getElementById('modal-submit').classList.remove('hidden');
+        }
+
+        window.hideSubmitModal = function() {
+            document.getElementById('modal-submit').classList.add('hidden');
+        }
+
+        // --- SUBMISSION LOGIC ---
+        window.submitTest = async function() {
+            clearInterval(timerInterval);
+            hideSubmitModal();
+            switchScreen('submitting');
+
+            const pkg = soalPackages[userData.packageKey];
+            let correct = 0;
+
+            pkg.questions.forEach((q, idx) => {
+                const userAns = answers[idx];
+                if (q.type === 'multiple') {
+                    if (Array.isArray(userAns) && Array.isArray(q.answer)) {
+                        // Check exact match
+                        if (userAns.length === q.answer.length && userAns.every(v => q.answer.includes(v))) {
+                            correct++;
+                        }
+                    }
+                } else {
+                    if (userAns === q.answer) correct++;
+                }
+            });
+
+            const total = pkg.questions.length;
+            const wrong = total - correct;
+            const score = Math.round((correct / total) * 100);
+
+            // Fetch to Google Script (Dipertahankan persis sesuai aplikasi asli)
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzEn4l54lWnkuWM9PbRBAlnbvYOYzrfFsOaL6NoNkqQfWqF6v8Gq5cEQfTkymiyUQBU/exec';
+            
+            try {
+                const formData = new URLSearchParams();
+                formData.append('waktu', new Date().toLocaleString('id-ID'));
+                formData.append('nama', userData.name);
+                formData.append('sekolah', userData.school);
+                formData.append('paket', pkg.title);
+                formData.append('benar', correct);
+                formData.append('salah', wrong);
+                formData.append('nilai', score);
+
+                // Sending data to Google Spreadsheet via Google Apps Script
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                });
+            } catch (error) {
+                console.error('Data disubmit, tapi gagal tersambung ke GSheet (mungkin isu CORS).', error);
+            }
+
+            // Proceed to Result Screen
+            showResults(correct, wrong, score, pkg.title);
+        }
+
+        function showResults(correct, wrong, score, title) {
+            document.getElementById('res-name').textContent = userData.name;
+            document.getElementById('res-school').textContent = userData.school;
+            document.getElementById('res-package').textContent = title;
+            document.getElementById('res-correct').textContent = correct;
+            document.getElementById('res-wrong').textContent = wrong;
+            document.getElementById('res-score').textContent = score;
+
+            switchScreen('result');
+        }
+
+        window.resetApp = function() {
+            userData = { name: '', school: '', packageKey: 'lcc_1' };
+            document.getElementById('input-name').value = '';
+            document.getElementById('input-school').value = '';
+            switchScreen('login');
+        }
+
+    </script>
+</body>
+</html>
