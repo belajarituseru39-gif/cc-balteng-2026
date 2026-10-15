@@ -139,6 +139,10 @@
                 </div>
                 
                 <div class="p-6 md:p-8 flex-1 overflow-y-auto">
+                    <div id="q-image-container" class="hidden mb-6 flex justify-center">
+                        <img id="q-image" src="" alt="Ilustrasi Soal" referrerpolicy="no-referrer" class="max-h-72 max-w-full w-auto rounded-xl border border-slate-200 shadow-sm object-contain bg-slate-50 p-1" onerror="this.onerror=null; this.src='https://placehold.co/600x350/e2e8f0/475569?text=Gambar+Tidak+Dapat+Dimuat';">
+                    </div>
+
                     <div id="q-text" class="text-lg text-slate-800 leading-relaxed whitespace-pre-wrap mb-8 text-justify">
                         <!-- Question text here -->
                     </div>
@@ -308,6 +312,7 @@
                 answer: 2
               },
               {
+                image: "https://i.imgur.com/VICiEMG.png",
                 text: "Andi tidak sengaja menjatuhkan botol minum milik Bayu hingga pecah. Meskipun takut, Andi segera menemui Bayu dan mengakui kesalahannya. Ia juga menawarkan untuk mengganti botol tersebut dengan uang tabungannya. Bayu yang melihat kejujuran Andi akhirnya memaafkannya dan mengatakan bahwa tidak perlu diganti karena ia juga punya botol cadangan di rumah.\n\nAlasan tindakan Andi dianggap sesuai dengan nilai kejujuran adalah ....",
                 options: [
                   "Ia menyembunyikan pecahan botol agar tidak dimarahi",
@@ -358,7 +363,8 @@
                 answer: 1
               },
               {
-                text: "[Ide Visual/Gambar]: Seorang arkeolog sedang membersihkan benda kuno dari tanah menggunakan kuas.\n\nPara arkeolog baru saja menemukan berbagai artefak di situs penggalian candi kuno. Benda-benda tersebut berupa pecahan gerabah, koin emas, dan alat-alat pertukangan dari batu. Melalui benda tersebut, para ahli dapat mempelajari cara hidup masyarakat pada zaman dahulu. Penemuan ini sangat berharga bagi ilmu pengetahuan sejarah Indonesia.\n\nIstilah 'artefak' pada teks di atas merujuk pada ....",
+                image: "https://i.imgur.com/vgroTfE.png",
+                text: "Para arkeolog baru saja menemukan berbagai artefak di situs penggalian candi kuno. Benda-benda tersebut berupa pecahan gerabah, koin emas, dan alat-alat pertukangan dari batu. Melalui benda tersebut, para ahli dapat mempelajari cara hidup masyarakat pada zaman dahulu. Penemuan ini sangat berharga bagi ilmu pengetahuan sejarah Indonesia.\n\nIstilah 'artefak' pada teks di atas merujuk pada ....",
                 options: [
                   "Benda arkeologi atau peninggalan bersejarah",
                   "Tulisan kuno yang terdapat pada dinding gua",
@@ -428,6 +434,7 @@
                 answer: 1
               },
               {
+                image: "https://i.imgur.com/79pZ8PV.png",
                 text: "Pastikan kabel daya terhubung ke stopkontak. Tekan tombol 'Power' pada unit CPU dan juga pada monitor. Tunggu beberapa saat hingga proses 'booting' selesai dan layar utama muncul. Klik menu 'Start' di pojok kiri bawah untuk mulai menjalankan program yang diinginkan.\n\nTujuan utama penulisan teks tersebut adalah ....",
                 options: [
                   "Menjelaskan cara mematikan komputer",
@@ -712,6 +719,16 @@
             
             const badge = document.getElementById('q-badge');
             if(isMultiple) badge.classList.remove('hidden'); else badge.classList.add('hidden');
+
+            const imgContainer = document.getElementById('q-image-container');
+            const imgEl = document.getElementById('q-image');
+            if (q.image) {
+                imgEl.src = q.image;
+                imgContainer.classList.remove('hidden');
+            } else {
+                imgEl.src = '';
+                imgContainer.classList.add('hidden');
+            }
 
             document.getElementById('q-text').textContent = q.text;
 
